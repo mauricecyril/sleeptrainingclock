@@ -56,9 +56,13 @@ y = (225,225,0)     # Yellow
 class Alarm():
     """ A object which represents an Alarm"""
 
-    def __init__(self, hour, minute):
+    def __init__(self, hour, minute, interval, startcolour, countcolour, endcolour):
         self.hour = hour
         self.minute = minute
+        self.interval = interval
+        self.startcolour = startcolour
+        self.countcolour = countcolour
+        self.endcolour = endcolour
 
 
     def check_time(self):
@@ -96,7 +100,7 @@ class Alarm():
         # Fill the screen with a single colour
         for i in range(64):
             if i < s:
-                timer.append(w) # Set to White
+                timer.append(self.startcolour) # Set to White (w)
             else:
                 timer.append(b)
         hat.set_pixels(timer)   # Display Pixels
@@ -106,25 +110,29 @@ class Alarm():
 
             # Update the screen based on a defined interval
             for i in range(0,60):
-                timer[i] = g
+                timer[i] = self.countcolour
                 hat.set_pixels(timer)        
                 
                 count = count - 1
                 print(count)
 
-                sleep(60)        # Set Sleep Interval to 60 seconds
+                sleep(self.interval)        # Set Sleep Interval to 60 seconds
                 
         else:
             print(count)
-            hat.clear(g)        # Once count down completes set screen
-                                # Green
+            hat.clear(self.endcolour)        # Once count down completes set screen
             
             sleep(3600)          # Keep screen colour for 3600 seconds (1 Hour) 
             
         
 
 while True:
-    wakeup = Alarm(6,00)
+    # Setup wake up alarm at 6am
+    # Count down timer duration is 1 hour (60 counts of 60 seconds)
+    # Initial colour is White Pixels
+    # Count Down and Final Pixel Colour will be in Green
+    
+    wakeup = Alarm(6,0,60,w,g,g)
     if wakeup.check_time() is True:
         wakeup.alarm_event()
         wakeup.count_down()
