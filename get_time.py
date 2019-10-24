@@ -2,41 +2,48 @@ from time import sleep
 from time import localtime
 from time import gmtime
 
+class Alarm():
+    """ A object which represents an Alarm"""
 
-def gettime():
-    """This function pulls the current time and returns a tuple (h, m, s)"""
-    local_hour = localtime().tm_hour
-    local_minute = localtime().tm_min
-    local_second = localtime().tm_sec
-    utc_hour = gmtime().tm_hour
-    utc_minute = gmtime().tm_min
-    utc_second = gmtime().tm_sec
+    def __init__(self, hour, minute):
+        self.hour = hour
+        self.minute = minute
 
-    # Return a tuple [0 = hour, 1 = minute, 2 = second]
-    return(local_hour, local_minute, local_second)
 
-def checktime(lh,lm,ls,checkhour,checkminute):
-    """This function checks if a specific hour or minute has passed and returns
-    a true or false statement. (Ref Hour, Ref Min, Ref Sec, Check Hour, Check Min)"""
-    if lh >= checkhour and lm >= checkminute:
-        print(lh,lm,ls, checkhour, checkminute)
-        print("Pass in Function")
-        return True
-    else:
-        print(lh,lm,ls,checkhour, checkminute)
-        print("Fail in Function")
-        return False
+    def check_time(self):
+        """This method checks if a specific hour and minute has passed
+        and returns a true or false statement."""
+        lh = localtime().tm_hour
+        lm = localtime().tm_min
+        ls = localtime().tm_sec
+    
+        if lh >= self.hour and lm >= self.minute and self.hour - lh >= 0 and 2 > lm - self.minute < 1:
+            print(lh,lm,ls, self.hour, self.minute)
+            print("True")
+            return True
+        else:
+            print(lh,lm,ls, self.hour, self.minute)
+            print("False")
+            return False
+
+    def alarm_event(self):
+        """This method triggers a specific event for the alarm"""
+        print("Alarm Event Triggered")
+
+    def count_down(self):
+        """This method triggers the countdown display"""
+        count = 60
+        while localtime().tm_min >= self.minute and count != 0:
+            count = count - 1
+            print(count)
+            sleep(1)
+        else:
+            print(count)
+            sleep(1)
 
 while True:
-    checktime(*gettime(), checkhour=00, checkminute=35)
-    print("Initial Check")
-    print(checktime)
-
-    print("Checking again")
-    if checktime(*gettime(), checkhour=00, checkminute=35) is True:
-        print("Pass in While Statement - Getting Late")
-    else:
-        print("Fail in While Statement - Still Time")
-
-
-    sleep(5)
+    wakeup = Alarm(20,44)
+#    if wakeup.check_time() is True:
+#        wakeup.alarm_event()
+    print(wakeup.count_down())
+    sleep(30)

@@ -2,7 +2,6 @@
 # Version 0.01
 
 # Import libraries for Sense Hat and other components
-from colorsys import hsv_to_rgb
 from time import sleep
 from time import localtime
 from time import gmtime
@@ -17,6 +16,17 @@ hat = SenseHat()
 # Define Colours
 w = (255, 255, 255) # White
 b = (0,0,0)         # Black
+g = (0,128,0)       # Green
+l = (0,225,0)       # Lime
+n = (0,0,128)       # Navy
+B = (0,0,255)       # Blue
+m = (128,0,0)       # Maroon
+r = (225,0,0)       # Red
+p = (128,0,128)     # Purple
+f = (225,0,225)     # Fuchsia
+o = (128,0,128)     # Olive
+y = (225,225,0)     # Yellow
+
 
 # Set Pixel Matrix
 #piximage = [
@@ -31,53 +41,97 @@ b = (0,0,0)         # Black
 
 
 # Clear the entire display
-hat.clear()
+#hat.clear()
 
 # Set entire display to a single colour
-hat.clear(w)
+#hat.clear(w)
 
 # Set entire display to a low light mode
-hat.clear(w)
-hat.low_light = True
+#hat.clear(w)
+#hat.low_light = True
 
 # Turn Off Low Light Mode
-hat.low_light = False
+#hat.low_light = False
+
+class Alarm():
+    """ A object which represents an Alarm"""
+
+    def __init__(self, hour, minute):
+        self.hour = hour
+        self.minute = minute
 
 
-def gettime():
-    """This function pulls the current time and returns a tuple (h, m, s)"""
-    local_hour = localtime().tm_hour
-    local_minute = localtime().tm_min
-    local_second = localtime().tm_sec
-    utc_hour = gmtime().tm_hour
-    utc_minute = gmtime().tm_min
-    utc_second = gmtime().tm_sec
+    def check_time(self):
+        """This method checks if a specific hour and minute has passed
+        and returns a true or false statement."""
+        lh = localtime().tm_hour
+        lm = localtime().tm_min
+        ls = localtime().tm_sec
+    
+        if lh >= self.hour and lm >= self.minute and self.hour - lh >= 0 and 2 > lm - self.minute < 1:
+            print(lh,lm,ls, self.hour, self.minute)
+            print("True")
+            return True
+        else:
+            print(lh,lm,ls, self.hour, self.minute)
+            print("False")
+            return False
 
-    # Return a tuple [0 = hour, 1 = minute, 2 = second]
-    return(local_hour, local_minute, local_second)
+    def alarm_event(self):
+        """This method triggers a specific event for the alarm"""
+        print("Alarm Event Triggered")
 
-def checktime(lh,lm,ls,checkhour,checkminute):
-    """This function checks if a specific hour or minute has passed and returns
-    a true or false statement. (Ref Hour, Ref Min, Ref Sec, Check Hour, Check Min)"""
-    if lh >= checkhour and lm >= checkminute:
-        print(lh,lm,ls, checkhour, checkminute)
-        print("Pass in Function")
-        return True
-    else:
-        print(lh,lm,ls,checkhour, checkminute)
-        print("Fail in Function")
-        return False
+    def count_down(self):
+        """This method triggers the countdown display"""
 
+        # Setup Count Down steps. Duration of Interval to be set below.
+        # Currently set to 60 steps (which will be multiplied by
+        # The duration of the sleep interval)
+        count = 60
+
+        # Setup Initial Colour for Count Down
+        s = 64                  # Use all 64 Pixels
+        timer = []              # Create a pixel matrix
+
+        # Fill the screen with a single colour
+        for i in range(64):
+            if i < s:
+                timer.append(w) # Set to White
+            else:
+                timer.append(b)
+        hat.set_pixels(timer)   # Display Pixels
+
+        # Start Timer for number of minutes
+        while localtime().tm_min >= self.minute and count > 0:
+
+            # Update the screen based on a defined interval
+            for i in range(0,60):
+                timer[i] = g
+                hat.set_pixels(timer)        
+                
+                count = count - 1
+                print(count)
+
+                sleep(60)        # Set Sleep Interval to 60 seconds
+                
+        else:
+            print(count)
+            hat.clear(g)        # Once count down completes set screen
+                                # Green
+            
+            sleep(3600)          # Keep screen colour for 3600 seconds (1 Hour) 
+            
+        
 
 while True:
-    # Pass function gettime() as a variable argument to check time function
-    # If true print getting late, if false still within time
-    if checktime(*gettime(), checkhour=00, checkminute=35) is True:
-        print("Pass in While Statement - Getting Late")
+    wakeup = Alarm(6,00)
+    if wakeup.check_time() is True:
+        wakeup.alarm_event()
+        wakeup.count_down()
     else:
-        print("Fail in While Statement - Still Time")
+        hat.clear()
 
-    sleep(5)
+    sleep(30)                   # Check Alarm every 30 seconds.
 
 
 # Todo
